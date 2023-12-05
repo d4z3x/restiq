@@ -1,0 +1,9 @@
+restic_bin: /mnt/cache/restic/restic
+repos:
+  restic:
+    location: raspberrypi:restic
+    type: sftp
+    limit-upload: 1250
+    compression: max
+    max_age: 15
+    max_snapshots: 10

@@ -12,7 +12,7 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "restiq",
-	Short: "Configuration based tool for repos",
+	Short: "Configuration based tool for `restic` repos",
 	Long:  "",
 }
 

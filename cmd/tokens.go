@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"restiq/helper"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -17,10 +18,8 @@ var tokensCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		helper.ReadViperConfig()
 		for k, v := range helper.C.Token {
-			fmt.Printf("%s=%s\n", k, v)
+			fmt.Printf("%s=%s%s\n", k, v[0:4], strings.Repeat("*", len(v)-5)[4:])
 		}
-		// fmt.Printf("Tokens=%+q\n", helper.C.Token)
-		// fmt.Printf("Tokens=%+q\n", helper.C.Token)
 	},
 }
 

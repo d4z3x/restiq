@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"restiq/shell"
+	"slices"
 
 	"github.com/spf13/viper"
 )
@@ -15,6 +16,9 @@ type config struct {
 }
 
 type Repo struct {
+	KeyID         string `mapstructure:"key_id"`
+	AppKey        string `mapstructure:"app_key"`
+	Bucket        string
 	User          string
 	State         bool
 	Location      string
@@ -25,7 +29,7 @@ type Repo struct {
 	MinAge        string `mapstructure:"min_age"` // --keep-within
 	MaxAge        string `mapstructure:"max_age"` // --keep-within
 	Dirs          []string
-	MaxSnapshots  string `mapstructure:"max_snapshots"`
+	MaxSnapshots  string `mapstructure:"max_snapshots"` // --keep-last
 	PackSize      string // --pack-size
 }
 
@@ -97,11 +101,18 @@ func ReadViperConfig() {
 // 	}
 // }
 
+func AddParamsPost(repoName string) (params []string) {
+	if C.Repos[repoName].MaxSnapshots != "" {
+		params = append(params, "--keep-last", C.Repos[repoName].MaxSnapshots,
+			"--prune")
+	}
+	return
+}
+
 func AddParams(repoName string) (params []string) {
 	if C.Repos[repoName].PackSize != "" {
 		params = append(params, "--pack-size", C.Repos[repoName].PackSize)
 	}
-
 	if C.Repos[repoName].LimitUpload != "" {
 		params = append(params, "--limit-upload", C.Repos[repoName].LimitUpload)
 	}
@@ -156,6 +167,14 @@ func ResticBackupRepoNew(repoName string) {
 		WithEnv(ResticPassword()).
 		WithResticSubCmd("backup").WithArgs(AddParams(repoName)).
 		RunWithJson()
+
+	if C.Repos[repoName].MaxSnapshots != "" {
+		shellCmd := shell.NewRestic(C.ResticBin)
+		shellCmd.WithRepo(findRepoURL(repoName)).
+			WithEnv(ResticPassword()).
+			WithResticSubCmd("forget").WithArgs(AddParamsPost(repoName)).
+			Run()
+	}
 }
 
 func findRepoURL(repoName string) (repoURL string) {
@@ -192,14 +211,25 @@ func ResticLsSnapshot(args []string) {
 }
 
 func ResticListRepos() {
+
+	repoKeys := make([]string, 0, len(C.Repos))
+	for k := range C.Repos {
+		repoKeys = append(repoKeys, k)
+	}
+
+	slices.Sort(repoKeys)
+
 	var repoURL string
-	for k, vv := range C.Repos {
-		if vv.Type == "" || vv.Type == "none" || vv.Type == "local" {
-			repoURL = vv.Location
+	var count uint
+
+	for _, v := range repoKeys {
+		if C.Repos[v].Type == "" || C.Repos[v].Type == "none" || C.Repos[v].Type == "local" {
+			repoURL = C.Repos[v].Location
 		} else {
-			repoURL = fmt.Sprintf("Repo %v has URL: %s:%s\n", k, vv.Type, vv.Location)
+			repoURL = fmt.Sprintf("%s:%s", C.Repos[v].Type, C.Repos[v].Location)
 		}
 
-		fmt.Printf("Repo %v has URL: %s\n", k, repoURL)
+		fmt.Printf("%02d %-20s %s\n", count, v, repoURL)
+		count++
 	}
 }

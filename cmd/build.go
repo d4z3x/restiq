@@ -4,21 +4,20 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"restiq/helper"
+	"fmt"
 
 	"github.com/spf13/cobra"
 )
 
-var reposCmd = &cobra.Command{
-	Use:   "repos",
-	Short: "Lists Repos",
+var buildCmd = &cobra.Command{
+	Use:   "build",
+	Short: "build info",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		helper.ReadViperConfig()
-		helper.ResticListRepos()
+		fmt.Println("Not implemented yet")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(reposCmd)
+	rootCmd.AddCommand(buildCmd)
 }

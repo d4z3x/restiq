@@ -1,6 +1,3 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -9,8 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var reposCmd = &cobra.Command{
-	Use:   "repos",
+var listCmd = &cobra.Command{
+	Use:   "list",
 	Short: "Lists Repos",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -20,5 +17,5 @@ var reposCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(reposCmd)
+	rootCmd.AddCommand(listCmd)
 }
